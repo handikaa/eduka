@@ -15,11 +15,33 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Seed categories first
+        $this->call(CategorySeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Create 20 student users
+        User::factory(20)->create([
+            'role' => 'student',
         ]);
+
+        // Create 7 instructor users
+        User::factory(7)->instructor()->create();
+
+        // Seed courses
+        $this->call(CourseSeeder::class);
+
+        // Assign categories to courses (many-to-many relationships)
+        $this->call(CourseCategoritiSeeder::class);
+
+        // Seed lessons for each course
+        $this->call(LessonSeeder::class);
+
+        // Seed enrollments (students buying courses)
+        $this->call(EnrollmentSeeder::class);
+
+        // Seed lesson progress for enrolled students
+        $this->call(LessonProgressSeeder::class);
+
+        // Seed course reviews from students
+        $this->call(CourseReviewSeeder::class);
     }
 }
