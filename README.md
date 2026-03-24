@@ -1,53 +1,198 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# LMS Dibimbing
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A simple Learning Management System (LMS) built with Laravel for backend development assignment. This project provides basic CRUD operations for Users, Courses, and Categories, with lesson management within courses and soft delete functionality.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Authentication**: User registration, login, logout, and profile management
+- **Course Management**: Create, read, update, delete courses with lesson management
+- **Category Management**: Organize courses with categories
+- **Lesson Management**: Add, update, delete lessons within courses
+- **Soft Delete**: Soft delete for courses and lessons with restore and force delete options
+- **API Authentication**: Using Laravel Sanctum for secure API access
+- **Database Migrations**: Structured database schema with relationships
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Technologies Used
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Laravel 11**: PHP framework for backend development
+- **MySQL**: Database management system
+- **Laravel Sanctum**: API authentication
+- **Composer**: PHP dependency management
+- **Postman**: API testing (collection provided)
 
-## Learning Laravel
+## Installation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Prerequisites
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- PHP 8.1 or higher
+- Composer
+- MySQL
+- Node.js & npm (for frontend assets)
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Steps
 
-## Agentic Development
+1. **Clone the repository**
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+    ```bash
+    git clone https://github.com/your-username/lms-dibimbing.git
+    cd lms-dibimbing
+    ```
+
+2. **Install PHP dependencies**
+
+    ```bash
+    composer install
+    ```
+
+3. **Install Node.js dependencies**
+
+    ```bash
+    npm install
+    ```
+
+4. **Environment Configuration**
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    Update the `.env` file with your database credentials:
+
+    ```env
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=lms_dibimbing
+    DB_USERNAME=your_username
+    DB_PASSWORD=your_password
+    ```
+
+5. **Generate Application Key**
+
+    ```bash
+    php artisan key:generate
+    ```
+
+6. **Run Database Migrations**
+
+    ```bash
+    php artisan migrate
+    ```
+
+7. **Seed Database (Optional)**
+
+    ```bash
+    php artisan db:seed
+    ```
+
+8. **Build Frontend Assets**
+
+    ```bash
+    npm run build
+    ```
+
+9. **Start the Development Server**
+    ```bash
+    php artisan serve
+    ```
+
+The application will be available at `http://localhost:8000`
+
+## API Endpoints
+
+### Authentication
+
+- `POST /api/v1/auth/register` - User registration
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/logout` - User logout (requires auth)
+- `GET /api/v1/auth/profile` - Get user profile (requires auth)
+- `GET /api/v1/auth/user/{id}` - Get user by ID (requires auth)
+
+### Courses
+
+- `GET /api/v1/courses` - List all courses
+- `GET /api/v1/courses/{id}` - Get course details with lessons
+- `POST /api/v1/courses` - Create new course with lessons (requires auth)
+- `PUT /api/v1/courses/{id}` - Update course and manage lessons (requires auth)
+- `DELETE /api/v1/courses/{id}` - Soft delete course (requires auth)
+- `POST /api/v1/courses/{id}/restore` - Restore soft deleted course (requires auth)
+- `DELETE /api/v1/courses/{id}/force` - Force delete course (requires auth)
+
+### Lessons (within Courses)
+
+- `POST /api/v1/courses/{courseId}/lessons/{lessonId}/restore` - Restore soft deleted lesson (requires auth)
+- `DELETE /api/v1/courses/{courseId}/lessons/{lessonId}/force` - Force delete lesson (requires auth)
+
+### Categories
+
+- `GET /api/v1/categories` - List all categories
+- `GET /api/v1/categories/{id}` - Get category details with courses
+- `POST /api/v1/categories` - Create new category (requires auth)
+- `PUT /api/v1/categories/{id}` - Update category (requires auth)
+- `DELETE /api/v1/categories/{id}` - Delete category (requires auth)
+
+## Database Schema (ERD)
+
+![ERD Diagram](assets/img/erd.jpg)
+
+The ERD shows the relationships between Users, Courses, Lessons, and Categories.
+
+## Testing
+
+### Postman Collection
+
+A Postman collection is provided for testing the API endpoints. You can find it in the `postman/` directory:
+
+- `Eduka_LMS_Dibimbing.postman_collection.json`
+
+To use it:
+
+1. Import the collection into Postman
+2. Set up environment variables for base URL and authentication tokens
+3. Run the requests in order
+
+### Running Tests
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+php artisan test
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Project Structure
+
+```
+lms-dibimbing/
+├── app/
+│   ├── Http/Controllers/Api/
+│   │   ├── AuthController.php
+│   │   ├── CourseController.php
+│   │   └── CategoryController.php
+│   └── Models/
+│       ├── User.php
+│       ├── Course.php
+│       ├── Lesson.php
+│       └── Category.php
+├── database/migrations/
+├── routes/api.php
+├── assets/img/erd.jpg
+└── postman/
+    └── LMS_Dibimbing.postman_collection.json
+```
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Create a Pull Request
 
-## Code of Conduct
+## License
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+[Your Name] - Backend Development Assignment for Dibimbing
 
 ## Security Vulnerabilities
 
@@ -56,4 +201,5 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
 # eduka

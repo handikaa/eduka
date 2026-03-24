@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\CategoryController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -28,6 +30,62 @@ Route::prefix('v1')->group(function () {
                 ->name('auth.logout');
             Route::get('profile', [AuthController::class, 'profile'])
                 ->name('auth.profile');
+            Route::get('user/{id}', [AuthController::class, 'getUserById'])
+                ->name('auth.getUserById');
+        });
+    });
+
+    /**
+     * Course Routes (Public GET, Protected Create/Update/Delete)
+     */
+    Route::prefix('courses')->group(function () {
+        // Public routes - Get courses
+        Route::get('/', [CourseController::class, 'index'])
+            ->name('courses.index');
+        Route::get('/{id}', [CourseController::class, 'show'])
+            ->name('courses.show');
+
+        // Protected routes - Create/Update/Delete (require authentication)
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::post('/', [CourseController::class, 'store'])
+                ->name('courses.store');
+            Route::put('/{id}', [CourseController::class, 'update'])
+                ->name('courses.update');
+            Route::delete('/{id}', [CourseController::class, 'destroy'])
+                ->name('courses.destroy');
+            Route::post('/{id}/restore', [CourseController::class, 'restore'])
+                ->name('courses.restore');
+            Route::delete('/{id}/force', [CourseController::class, 'forceDelete'])
+                ->name('courses.forceDelete');
+
+            /**
+             * Lesson Management Routes (Nested under Courses)
+             */
+            Route::post('/{courseId}/lessons/{lessonId}/restore', [CourseController::class, 'restoreLesson'])
+                ->name('lessons.restore');
+            Route::delete('/{courseId}/lessons/{lessonId}/force', [CourseController::class, 'forceDeleteLesson'])
+                ->name('lessons.forceDelete');
+        });
+    });
+
+    /**
+     * Category Routes (Public GET, Protected Create/Update/Delete)
+     */
+    Route::prefix('categories')->group(function () {
+        // Public routes - Get categories
+        Route::get('/', [CategoryController::class, 'index'])
+            ->name('categories.index');
+        Route::get('/{id}', [CategoryController::class, 'show'])
+            ->name('categories.show');
+
+        // Protected routes - Create/Update/Delete
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::post('/', [CategoryController::class, 'store'])
+                ->name('categories.store');
+            Route::put('/{id}', [CategoryController::class, 'update'])
+                ->name('categories.update');
+            Route::delete('/{id}', [CategoryController::class, 'destroy'])
+                ->name('categories.destroy');
         });
     });
 
@@ -36,6 +94,6 @@ Route::prefix('v1')->group(function () {
      */
     Route::middleware('auth:sanctum')->group(function () {
         // Routes untuk authenticated users akan ditambahkan di sini
-        // Category, Course, Lesson, Enrollment, LessonProgress, CourseReview
+        // Lesson, Enrollment, LessonProgress, CourseReview
     });
 });

@@ -1,0 +1,726 @@
+{
+  "info": {
+    "_postman_id": "c9832ab2-fd26-4863-bfd7-f04db4e15b52",
+    "name": "Eduka LMS Dibimbing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "35355727",
+    "_collection_link": "https://go.postman.co/collection/35355727-c9832ab2-fd26-4863-bfd7-f04db4e15b52?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Authentification",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"User Mentor\",\n    \"email\": \"mentor@lms.local\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"role\": \"instructor\"\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/auth/register",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Generated from cURL: curl -X POST http://localhost:8000/api/v1/auth/register \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"name\": \"Test User\",\n    \"email\": \"test@lms.local\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"role\": \"student\"\n  }'"
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"mentor@lms.local\",\n    \"password\": \"password123\"\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/auth/login",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Generated from cURL: curl -X POST http://127.0.0.1:8000/api/v1/auth/login \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"email\": \"student1@lms.local\",\n    \"password\": \"password\"\n  }'"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Detail User",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "2|wf1EjtlbArIzLY5zzGiggtMUzPdSAN7ngUd5lMRQd78858d2",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"student1@lms.local\",\n    \"password\": \"password\"\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/auth/user/1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "user",
+                "1"
+              ]
+            },
+            "description": "Generated from cURL: curl -X POST http://127.0.0.1:8000/api/v1/auth/login \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"email\": \"student1@lms.local\",\n    \"password\": \"password\"\n  }'"
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "Create Course",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "4|pLNrsV379pImFJrQran1u6SP4lxVK2auQw1AJsBwafcaf67a",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Flutter Fundamentals\",\n    \"slug\": \"flutter-fundamentals\",\n    \"description\": \"Belajar Flutter dari dasar\",\n    \"level\": \"beginner\",\n    \"price\": 199000,\n    \"quota\": 100,\n    \"status\": \"draft\",\n    \"category_ids\": [2],\n    \"lessons\": [\n      {\n        \"title\": \"Welcome to Flutter\",\n        \"type\": \"video\",\n        \"content\": \"Introduction to Flutter\",\n        \"video_url\": \"https://youtube.com/embed/example\",\n        \"is_preview\": true\n      }\n    ]\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/courses",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "courses"
+              ]
+            },
+            "description": "Generated from cURL: curl -X POST \"http://127.0.0.1:8000/api/v1/courses\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN_HERE\" \\\n  -d '{\n    \"title\": \"React.js Fundamentals\",\n    \"slug\": \"react-fundamentals\",\n    \"description\": \"Belajar React dari dasar\",\n    \"level\": \"beginner\",\n    \"price\": 199000,\n    \"quota\": 100,\n    \"status\": \"draft\",\n    \"category_ids\": [2],\n    \"lessons\": [\n      {\n        \"title\": \"Welcome to React\",\n        \"type\": \"video\",\n        \"content\": \"Introduction to React JS\",\n        \"video_url\": \"https://youtube.com/embed/example\",\n        \"is_preview\": true\n      }\n    ]\n  }'"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Course",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "4|pLNrsV379pImFJrQran1u6SP4lxVK2auQw1AJsBwafcaf67a",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"PHP Laravel Master - Updated Edition 2024\",\n    \"description\": \"Pelajari Laravel dengan konsep terbaru\",\n    \"price\": 399000,\n    \"status\": \"published\",\n    \"category_ids\": [1, 2],\n    \"lessons\": [\n      {\n        \"id\": 1,\n        \"title\": \"01 - Introduction to Laravel (Updated)\",\n        \"type\": \"video\",\n        \"content\": \"Pengenalan Laravel versi 11 dengan fitur terbaru\",\n        \"video_url\": \"https://youtube.com/embed/updated\",\n        \"order_index\": 1,\n        \"is_preview\": true,\n        \"action\": \"update\"\n      },\n      {\n        \"id\": 2,\n        \"title\": \"02 - Installation (Updated)\",\n        \"type\": \"text\",\n        \"content\": \"Setup Laravel 11 dengan composer\",\n        \"order_index\": 2,\n        \"is_preview\": true,\n        \"action\": \"update\"\n      },\n      {\n        \"title\": \"03 - NEW: Eloquent ORM\",\n        \"type\": \"video\",\n        \"content\": \"Pelajari Eloquent ORM Basics\",\n        \"video_url\": \"https://youtube.com/embed/eloquent\",\n        \"order_index\": 3,\n        \"is_preview\": false,\n        \"action\": \"create\"\n      },\n      {\n        \"title\": \"04 - NEW: Database Relationships\",\n        \"type\": \"text\",\n        \"content\": \"One-to-Many, Many-to-Many, One-to-One\",\n        \"order_index\": 4,\n        \"is_preview\": false,\n        \"action\": \"create\"\n      }\n    //   {\n    //     \"id\": 102,\n    //     \"action\": \"delete\"\n    //   }\n    ]\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/courses/23",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "23"
+              ]
+            },
+            "description": "Generated from cURL: curl -X PUT \"http://127.0.0.1:8000/api/v1/courses/1\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN_HERE\" \\\n  -d '{\n    \"title\": \"PHP Laravel Master - Updated Edition 2024\",\n    \"description\": \"Pelajari Laravel dengan konsep terbaru\",\n    \"price\": 399000,\n    \"status\": \"published\",\n    \"category_ids\": [1, 2],\n    \"lessons\": [\n      {\n        \"id\": 1,\n        \"title\": \"01 - Introduction to Laravel (Updated)\",\n        \"type\": \"video\",\n        \"content\": \"Pengenalan Laravel versi 11 dengan fitur terbaru\",\n        \"video_url\": \"https://youtube.com/embed/updated\",\n        \"order_index\": 1,\n        \"is_preview\": true,\n        \"action\": \"update\"\n      },\n      {\n        \"id\": 2,\n        \"title\": \"02 - Installation (Updated)\",\n        \"type\": \"text\",\n        \"content\": \"Setup Laravel 11 dengan composer\",\n        \"order_index\": 2,\n        \"is_preview\": true,\n        \"action\": \"update\"\n      },\n      {\n        \"title\": \"03 - NEW: Eloquent ORM\",\n        \"type\": \"video\",\n        \"content\": \"Pelajari Eloquent ORM Basics\",\n        \"video_url\": \"https://youtube.com/embed/eloquent\",\n        \"order_index\": 3,\n        \"is_preview\": false,\n        \"action\": \"create\"\n      },\n      {\n        \"title\": \"04 - NEW: Database Relationships\",\n        \"type\": \"text\",\n        \"content\": \"One-to-Many, Many-to-Many, One-to-One\",\n        \"order_index\": 4,\n        \"is_preview\": false,\n        \"action\": \"create\"\n      },\n      {\n        \"id\": 5,\n        \"action\": \"delete\"\n      }\n    ]\n  }'"
+          },
+          "response": []
+        },
+        {
+          "name": "Detail Courses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/courses/23",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "23"
+              ]
+            },
+            "description": "Generated from cURL: curl -X GET \"http://127.0.0.1:8000/api/v1/courses/1\" \\\n  -H \"Content-Type: application/json\""
+          },
+          "response": []
+        },
+        {
+          "name": "List Courses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/courses?per_page=22&page=1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "courses"
+              ],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "22"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "search",
+                  "value": null,
+                  "disabled": true
+                },
+                {
+                  "key": "level",
+                  "value": null,
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": null,
+                  "disabled": true
+                },
+                {
+                  "key": "category_id",
+                  "value": null,
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Generated from cURL: curl -X GET \"http://127.0.0.1:8000/api/v1/courses\" \\\n  -H \"Content-Type: application/json\"\n"
+          },
+          "response": []
+        },
+        {
+          "name": "Force Delete Course",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/courses/1/force",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "1",
+                "force"
+              ]
+            },
+            "description": "Generated from cURL: curl -X DELETE \"http://127.0.0.1:8000/api/v1/courses/1/force\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN_HERE\""
+          },
+          "response": []
+        },
+        {
+          "name": "Soft Delete Course",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "4|pLNrsV379pImFJrQran1u6SP4lxVK2auQw1AJsBwafcaf67a",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/courses/21",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "21"
+              ]
+            },
+            "description": "Generated from cURL: curl -X DELETE \"http://127.0.0.1:8000/api/v1/courses/1\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN_HERE\""
+          },
+          "response": []
+        },
+        {
+          "name": "Restore Course",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "4|pLNrsV379pImFJrQran1u6SP4lxVK2auQw1AJsBwafcaf67a",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/courses/21/restore",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "21",
+                "restore"
+              ]
+            },
+            "description": "Generated from cURL: curl -X POST \"http://127.0.0.1:8000/api/v1/courses/1/restore\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN_HERE\""
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Category",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "4|pLNrsV379pImFJrQran1u6SP4lxVK2auQw1AJsBwafcaf67a",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Machine Learning\",\n    \"slug\": \"machine-learning\"\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/categories",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "categories"
+              ]
+            },
+            "description": "Generated from cURL: curl -X POST \"http://127.0.0.1:8000/api/v1/categories\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"name\": \"Machine Learning\",\n    \"slug\": \"machine-learning\"\n  }'"
+          },
+          "response": []
+        },
+        {
+          "name": "List Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/categories?per_page=10000",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "categories"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "sort_by",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "sort_order",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "per_page",
+                  "value": "10000"
+                }
+              ]
+            },
+            "description": "Generated from cURL: curl -X GET \"http://127.0.0.1:8000/api/v1/categories\" \\\n  -H \"Content-Type: application/json\""
+          },
+          "response": []
+        },
+        {
+          "name": "Detail Category",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "4|pLNrsV379pImFJrQran1u6SP4lxVK2auQw1AJsBwafcaf67a",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/categories/1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": null,
+                  "disabled": true
+                },
+                {
+                  "key": "sort_by",
+                  "value": null,
+                  "disabled": true
+                },
+                {
+                  "key": "sort_order",
+                  "value": null,
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Generated from cURL: curl -X GET \"http://127.0.0.1:8000/api/v1/categories\" \\\n  -H \"Content-Type: application/json\""
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "4|pLNrsV379pImFJrQran1u6SP4lxVK2auQw1AJsBwafcaf67a",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"AI & Machine Learning\",\n    \"slug\": \"ai-machine-learning\"\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/categories/13",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "13"
+              ]
+            },
+            "description": "Generated from cURL: curl -X PUT \"http://127.0.0.1:8000/api/v1/categories/13\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"name\": \"AI & Machine Learning\",\n    \"slug\": \"ai-machine-learning\"\n  }'"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://127.0.0.1:8000/api/v1/categories/13",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "13"
+              ]
+            },
+            "description": "Generated from cURL: curl -X DELETE \"http://127.0.0.1:8000/api/v1/categories/13\" \\\n  -H \"Content-Type: application/json\""
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
