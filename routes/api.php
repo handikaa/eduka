@@ -25,6 +25,7 @@ Route::prefix('v1')->group(function () {
         /**
          * Protected Authentication Routes
          */
+
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('logout', [AuthController::class, 'logout'])
                 ->name('auth.logout');

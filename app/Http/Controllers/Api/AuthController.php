@@ -22,8 +22,10 @@ class AuthController extends Controller
      * Handle user registration.
      * POST /api/auth/register
      */
-    public function register(RegisterRequest $request, RegisterUseCase $registerUseCase)
-    {
+    public function register(
+        RegisterRequest $request,
+        RegisterUseCase $registerUseCase
+    ) {
         try {
             $result = $registerUseCase->execute(
                 new RegisterDto(
