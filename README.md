@@ -1,3 +1,11 @@
+# Assignment Information
+
+- Day 34: CRUD API Create Delete
+- Branch: `assigment/day/34/crud-api-create-delete`
+
+- Day 38: Laravel REST API - CRUD Product
+- Branch: `assigment/day/34/crud-api-create-delete`
+
 # LMS Dibimbing
 
 A simple Learning Management System (LMS) built with Laravel for backend development assignment. This project provides basic CRUD operations for Users, Courses, and Categories, with lesson management within courses and soft delete functionality.
