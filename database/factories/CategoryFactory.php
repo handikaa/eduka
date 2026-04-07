@@ -2,12 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Models\Category;
+use App\Infrastructure\Persistance\Eloquent\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Category>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Infrastructure\Persistance\Eloquent\Models\Category>
  */
 class CategoryFactory extends Factory
 {
@@ -31,7 +31,7 @@ class CategoryFactory extends Factory
      */
     public function backend(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'name' => 'Backend',
             'slug' => 'backend',
         ]);
@@ -42,7 +42,7 @@ class CategoryFactory extends Factory
      */
     public function frontend(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'name' => 'Frontend',
             'slug' => 'frontend',
         ]);
@@ -53,7 +53,7 @@ class CategoryFactory extends Factory
      */
     public function webDevelopment(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'name' => 'Web Development',
             'slug' => 'web-development',
         ]);
@@ -64,7 +64,7 @@ class CategoryFactory extends Factory
      */
     public function mobileDevelopment(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'name' => 'Mobile Development',
             'slug' => 'mobile-development',
         ]);
@@ -75,7 +75,7 @@ class CategoryFactory extends Factory
      */
     public function database(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'name' => 'Database',
             'slug' => 'database',
         ]);
@@ -86,7 +86,7 @@ class CategoryFactory extends Factory
      */
     public function devops(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'name' => 'DevOps',
             'slug' => 'devops',
         ]);
@@ -97,7 +97,7 @@ class CategoryFactory extends Factory
      */
     public function uiux(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'name' => 'UI/UX Design',
             'slug' => 'ui-ux-design',
         ]);
@@ -108,7 +108,7 @@ class CategoryFactory extends Factory
      */
     public function dataScience(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'name' => 'Data Science',
             'slug' => 'data-science',
         ]);

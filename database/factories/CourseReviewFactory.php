@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\Course;
-use App\Models\CourseReview;
-use App\Models\User;
+use App\Infrastructure\Persistance\Eloquent\Models\Course;
+use App\Infrastructure\Persistance\Eloquent\Models\CourseReview;
+use App\Infrastructure\Persistance\Eloquent\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\CourseReview>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Infrastructure\Persistance\Eloquent\Models\CourseReview>
  */
 class CourseReviewFactory extends Factory
 {

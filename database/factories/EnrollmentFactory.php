@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\Course;
-use App\Models\Enrollment;
-use App\Models\User;
+use App\Infrastructure\Persistance\Eloquent\Models\Course;
+use App\Infrastructure\Persistance\Eloquent\Models\Enrollment;
+use App\Infrastructure\Persistance\Eloquent\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Enrollment>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Infrastructure\Persistance\Eloquent\Models\Enrollment>
  */
 class EnrollmentFactory extends Factory
 {
