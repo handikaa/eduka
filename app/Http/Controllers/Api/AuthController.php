@@ -2,18 +2,27 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Aplication\Auth\DTOs\LoginDto;
-use App\Aplication\Auth\DTOs\RegisterDto;
+use App\Aplication\Auth\DTOs\ProfileUserDto;
+use App\Http\Responses\ApiResponse;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
-use App\Http\Resources\AuthResource;
-use App\Http\Responses\ApiResponse;
-use App\Aplication\Auth\UseCases\LoginUseCase;
-use App\Aplication\Auth\UseCases\RegisterUsecase;
 use App\Http\Controllers\Controller;
+use App\Aplication\Auth\DTOs\GetUserByIdDto;
+use App\Aplication\Auth\DTOs\LoginDto;
+use App\Aplication\Auth\DTOs\LogoutUserDto;
+use App\Aplication\Auth\DTOs\RegisterDto;
+use App\Aplication\Auth\UseCases\GetUserByIdUsecase;
+use App\Aplication\Auth\UseCases\LoginUseCase;
+use App\Aplication\Auth\UseCases\ProfileUsecase;
+use App\Aplication\Auth\UseCases\LogoutUsecase;
+use App\Aplication\Auth\UseCases\RegisterUsecase;
+use App\Domain\Auth\Exceptions\UserNotFoundException;
 use App\Domain\Auth\Exceptions\InvalidCredentialsException;
 use App\Domain\Auth\Exceptions\InactiveUserException;
 use App\Domain\Auth\Exceptions\UserAlreadyExistsException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Stmt\TryCatch;
 use Throwable;
 
 class AuthController extends Controller
@@ -116,82 +125,106 @@ class AuthController extends Controller
     }
 
     /**
+     * Get user by ID.
+     * GET /api/auth/user/{id}
+     */
+    public function getUserById(GetUserByIdUsecase $usecase, int $id)
+    {
+        try {
+            $result = $usecase->execute(new GetUserByIdDto(id: $id));
+            return ApiResponse::success(
+                data: [
+                    'user' => [
+                        'id' => $result['user']->id,
+                        'name' => $result['user']->name,
+                        'email' => $result['user']->email,
+                        'role' => $result['user']->role,
+                    ],
+                ],
+                message: 'User ditemukan',
+                code: 200,
+            );
+        } catch (UserNotFoundException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 404,
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'User tidak ditemukan',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
+    /**
      * Handle user logout.
      * POST /api/auth/logout
      */
-    // public function logout(Request $request)
-    // {
-    //     try {
-    //         $request->user()->currentAccessToken()->delete();
+    public function logout(LogoutUsecase $logoutUsecase,   Request $request,)
+    {
+        try {
+            $logoutUsecase->execute(
+                new LogoutUserDto(
+                    user: $request->user(),
+                )
+            );
 
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'Logout berhasil',
-    //         ], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Logout gagal',
-    //             'error' => $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
+            return ApiResponse::success(
+                message: 'Logout berhasil',
+                code: 200,
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'User tidak ditemukan',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage(),
+                ]
+            );
+        }
+    }
 
     /**
      * Get current user profile.
      * GET /api/auth/profile
      */
-    // public function profile(Request $request)
-    // {
-    //     $user = $request->user();
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'data' => [
-    //             'id' => $user->id,
-    //             'name' => $user->name,
-    //             'email' => $user->email,
-    //             'role' => $user->role,
-    //             'is_active' => $user->is_active,
-    //             'avatar_url' => $user->avatar_url,
-    //             'created_at' => $user->created_at,
-    //         ],
-    //     ], 200);
-    // }
-
-    // /**
-    //  * Get user by ID.
-    //  * GET /api/auth/user/{id}
-    //  */
-    // public function getUserById($id)
-    // {
-    //     try {
-    //         $user = User::findOrFail($id);
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'data' => [
-    //                 'id' => $user->id,
-    //                 'name' => $user->name,
-    //                 'email' => $user->email,
-    //                 'role' => $user->role,
-    //                 'is_active' => $user->is_active,
-    //                 'avatar_url' => $user->avatar_url,
-    //                 'created_at' => $user->created_at,
-    //                 'updated_at' => $user->updated_at,
-    //             ],
-    //         ], 200);
-    //     } catch (ModelNotFoundException $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'User tidak ditemukan',
-    //         ], 404);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Gagal mengambil data user',
-    //             'error' => $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
+    public function me(Request $request, ProfileUsecase $usecase)
+    {
+        try {
+            $result = $usecase->execute(
+                new ProfileUserDto(
+                    user: $request->user(),
+                )
+            );
+            return ApiResponse::success(
+                data: [
+                    'user' => [
+                        'id' => $result['user']->id,
+                        'name' => $result['user']->name,
+                        'email' => $result['user']->email,
+                        'role' => $result['user']->role,
+                    ],
+                ],
+                message: 'Profile user ditemukan',
+                code: 200,
+            );
+        } catch (UserNotFoundException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 404,
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'User tidak ditemukan',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage(),
+                ]
+            );
+        }
+    }
 }

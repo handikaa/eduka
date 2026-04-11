@@ -11,11 +11,15 @@ class ApiResponse
         string $message = 'Success',
         int $code = 200
     ): JsonResponse {
-        return response()->json([
+        $response = [
             'success' => true,
             'message' => $message,
-            'data' => $data,
-        ], $code);
+        ];
+
+        if (!is_null($data)) {
+            $response['data'] = $data;
+        }
+        return response()->json($response, $code);
     }
 
     public static function error(
@@ -23,10 +27,14 @@ class ApiResponse
         int $code = 400,
         mixed $errors = null
     ): JsonResponse {
-        return response()->json([
+        $response = [
             'success' => false,
             'message' => $message,
-            'errors' => $errors,
-        ], $code);
+        ];
+
+        if (!is_null($errors)) {
+            $response['error'] = $errors;
+        }
+        return response()->json($response, $code);
     }
 }

@@ -29,8 +29,8 @@ Route::prefix('v1')->group(function () {
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('logout', [AuthController::class, 'logout'])
                 ->name('auth.logout');
-            Route::get('profile', [AuthController::class, 'profile'])
-                ->name('auth.profile');
+            Route::get('me', [AuthController::class, 'me'])
+                ->name('auth.me');
             Route::get('user/{id}', [AuthController::class, 'getUserById'])
                 ->name('auth.getUserById');
         });
@@ -88,13 +88,5 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{id}', [CategoryController::class, 'destroy'])
                 ->name('categories.destroy');
         });
-    });
-
-    /**
-     * Protected API Routes (Require Authentication)
-     */
-    Route::middleware('auth:sanctum')->group(function () {
-        // Routes untuk authenticated users akan ditambahkan di sini
-        // Lesson, Enrollment, LessonProgress, CourseReview
     });
 });
