@@ -2,10 +2,24 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Infrastructure\Persistance\Eloquent\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Http\Responses\ApiResponse;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
+use App\Aplication\Category\DTOs\CreateCategoryDto;
+use App\Aplication\Category\DTOs\DeleteCategoryDto;
+use App\Aplication\Category\DTOs\GetCategoryByIdDto;
+use App\Aplication\Category\DTOs\UpdateCategoryDto;
+use App\Domain\Category\Exceptions\CategoryAlreadyExistsException;
+use App\Domain\Category\Exceptions\CategoryNotFoundException;
+use App\Aplication\Category\UseCases\CreateCategoryUsecase;
+use App\Aplication\Category\UseCases\DeleteCategoryUsecase;
+use App\Aplication\Category\UseCases\GetAllCategoryUsecase;
+use App\Aplication\Category\UseCases\GetCategoryByIdUsecase;
+use App\Aplication\Category\UseCases\UpdateCategoryUsecase;
+
+use Throwable;
 
 class CategoryController extends Controller
 {
@@ -13,111 +27,105 @@ class CategoryController extends Controller
      * Get all categories
      * GET /api/categories
      */
-    public function index(Request $request)
+    public function index(GetAllCategoryUsecase $useCase)
     {
         try {
-            $query = Category::query();
+            $result = $useCase->execute();
 
-            // Search by name or slug
-            if ($request->has('search')) {
-                $search = $request->get('search');
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('slug', 'like', "%{$search}%");
-            }
-
-            // Sort
-            $sortBy = $request->get('sort_by', 'name');
-            $sortOrder = $request->get('sort_order', 'asc');
-            $query->orderBy($sortBy, $sortOrder);
-
-            // Pagination
-            $categories = $query->paginate($request->get('per_page', 10));
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Daftar kategori berhasil diambil',
-                'data' => $categories->items(),
-                'pagination' => [
-                    'total' => $categories->total(),
-                    'per_page' => $categories->perPage(),
-                    'current_page' => $categories->currentPage(),
-                    'last_page' => $categories->lastPage(),
-                ],
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil daftar kategori',
-                'error' => $e->getMessage(),
-            ], 500);
+            return ApiResponse::success(
+                data: $result['categories'],
+                message: 'List category berhasil diambil',
+                code: 200
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'Gagal mengambil data category',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage()
+                ]
+            );
         }
     }
+
 
     /**
      * Get category detail with list of courses
      * GET /api/categories/{id}
      */
-    public function show($id)
+    public function show(GetCategoryByIdUsecase $useCase, int $id)
     {
         try {
-            $category = Category::findOrFail($id);
+            $result = $useCase->execute(
+                new GetCategoryByIdDto(id: $id)
+            );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Detail kategori berhasil diambil',
-                'data' => [
-                    'category' => $category,
-                    'courses_count' => $category->courses()->count(),
+            return ApiResponse::success(
+                data: [
+                    'category' => [
+                        'id' => $result['category']->id,
+                        'name' => $result['category']->name,
+                        'slug' => $result['category']->slug,
+                    ]
                 ],
-            ], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Kategori tidak ditemukan',
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil detail kategori',
-                'error' => $e->getMessage(),
-            ], 500);
+                message: 'Category ditemukan',
+                code: 200
+            );
+        } catch (CategoryNotFoundException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 404
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'Gagal mengambil category',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage()
+                ]
+            );
         }
     }
-
     /**
      * Create new category
      * POST /api/categories
      */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:categories',
-            'slug' => 'required|string|max:255|unique:categories',
-        ], [
-            'name.required' => 'Nama kategori harus diisi',
-            'name.unique' => 'Nama kategori sudah ada',
-            'slug.required' => 'Slug harus diisi',
-            'slug.unique' => 'Slug sudah ada',
-            'slug.max' => 'Slug maksimal 255 karakter',
-        ]);
-
+    public function store(
+        StoreCategoryRequest $request,
+        CreateCategoryUsecase $useCase
+    ) {
         try {
-            $category = Category::create([
-                'name' => $validated['name'],
-                'slug' => $validated['slug'],
-            ]);
+            $result = $useCase->execute(
+                new CreateCategoryDto(
+                    name: $request->string('name')->toString(),
+                    slug: $request->string('slug')->toString(),
+                )
+            );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Kategori berhasil dibuat',
-                'data' => $category,
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal membuat kategori',
-                'error' => $e->getMessage(),
-            ], 500);
+            return ApiResponse::success(
+                data: [
+                    'category' => [
+                        'id' => $result['category']->id,
+                        'name' => $result['category']->name,
+                        'slug' => $result['category']->slug,
+                    ]
+                ],
+                message: 'Category berhasil dibuat',
+                code: 201
+            );
+        } catch (CategoryAlreadyExistsException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 409
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'Gagal membuat category',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage()
+                ]
+            );
         }
     }
 
@@ -125,44 +133,49 @@ class CategoryController extends Controller
      * Update category
      * PUT /api/categories/{id}
      */
-    public function update(Request $request, $id)
-    {
+
+    public function update(
+        UpdateCategoryRequest $request,
+        UpdateCategoryUsecase $useCase,
+        int $id
+    ) {
         try {
-            $category = Category::findOrFail($id);
+            $result = $useCase->execute(
+                new UpdateCategoryDto(
+                    id: $id,
+                    name: $request->string('name')->toString(),
+                )
+            );
 
-            $validated = $request->validate([
-                'name' => 'nullable|string|max:255|unique:categories,name,' . $id,
-                'slug' => 'nullable|string|max:255|unique:categories,slug,' . $id,
-            ], [
-                'name.unique' => 'Nama kategori sudah ada',
-                'slug.unique' => 'Slug sudah ada',
-            ]);
-
-            // Update only if fields are provided
-            $updateData = collect($validated)
-                ->filter(fn($value) => $value !== null)
-                ->toArray();
-
-            if (!empty($updateData)) {
-                $category->update($updateData);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Kategori berhasil diperbarui',
-                'data' => $category,
-            ], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Kategori tidak ditemukan',
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memperbarui kategori',
-                'error' => $e->getMessage(),
-            ], 500);
+            return ApiResponse::success(
+                data: [
+                    'category' => [
+                        'id' => $result['category']->id,
+                        'name' => $result['category']->name,
+                        'slug' => $result['category']->slug,
+                    ]
+                ],
+                message: 'Category berhasil diupdate',
+                code: 200
+            );
+        } catch (CategoryNotFoundException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 404
+            );
+        } catch (CategoryAlreadyExistsException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 409
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'Gagal update category',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage()
+                ]
+            );
         }
     }
 
@@ -170,43 +183,28 @@ class CategoryController extends Controller
      * Delete category (if no courses associated)
      * DELETE /api/categories/{id}
      */
-    public function destroy($id)
+    public function destroy(DeleteCategoryUsecase $useCase, int $id)
     {
+
         try {
-            $category = Category::findOrFail($id);
-
-            // Check if category has associated courses
-            if ($category->courses()->count() > 0) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tidak dapat menghapus kategori yang memiliki kursus terkait',
-                    'data' => [
-                        'courses_count' => $category->courses()->count(),
-                    ],
-                ], 409);
-            }
-
-            $categoryName = $category->name;
-            $category->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Kategori berhasil dihapus',
-                'data' => [
-                    'deleted_category' => $categoryName,
-                ],
-            ], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Kategori tidak ditemukan',
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus kategori',
-                'error' => $e->getMessage(),
-            ], 500);
+            $useCase->execute(new DeleteCategoryDto(id: $id));
+            return ApiResponse::success(
+                message: 'Category berhasil dihapus',
+                code: 200
+            );
+        } catch (CategoryNotFoundException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 404
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'Gagal menghapus category',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage()
+                ]
+            );
         }
     }
 }

@@ -74,13 +74,13 @@ Route::prefix('v1')->group(function () {
      */
     Route::prefix('categories')->group(function () {
         // Public routes - Get categories
-        Route::get('/', [CategoryController::class, 'index'])
-            ->name('categories.index');
-        Route::get('/{id}', [CategoryController::class, 'show'])
-            ->name('categories.show');
-
         // Protected routes - Create/Update/Delete
         Route::middleware('auth:sanctum')->group(function () {
+            Route::get('/{id}', [CategoryController::class, 'show'])
+                ->name('categories.show');
+
+            Route::get('/', [CategoryController::class, 'index'])
+                ->name('categories.index');
             Route::post('/', [CategoryController::class, 'store'])
                 ->name('categories.store');
             Route::put('/{id}', [CategoryController::class, 'update'])
