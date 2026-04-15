@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateCategoryRequest;
 use App\Aplication\Category\DTOs\CreateCategoryDto;
 use App\Aplication\Category\DTOs\DeleteCategoryDto;
 use App\Aplication\Category\DTOs\GetCategoryByIdDto;
+use App\Aplication\Category\DTOs\GetCategoryBySlugDto;
 use App\Aplication\Category\DTOs\UpdateCategoryDto;
 use App\Domain\Category\Exceptions\CategoryAlreadyExistsException;
 use App\Domain\Category\Exceptions\CategoryNotFoundException;
@@ -17,6 +18,7 @@ use App\Aplication\Category\UseCases\CreateCategoryUsecase;
 use App\Aplication\Category\UseCases\DeleteCategoryUsecase;
 use App\Aplication\Category\UseCases\GetAllCategoryUsecase;
 use App\Aplication\Category\UseCases\GetCategoryByIdUsecase;
+use App\Aplication\Category\UseCases\GetCategoryBySlugUsecase;
 use App\Aplication\Category\UseCases\UpdateCategoryUsecase;
 
 use Throwable;
@@ -58,6 +60,39 @@ class CategoryController extends Controller
         try {
             $result = $useCase->execute(
                 new GetCategoryByIdDto(id: $id)
+            );
+
+            return ApiResponse::success(
+                data: [
+                    'category' => [
+                        'id' => $result['category']->id,
+                        'name' => $result['category']->name,
+                        'slug' => $result['category']->slug,
+                    ]
+                ],
+                message: 'Category ditemukan',
+                code: 200
+            );
+        } catch (CategoryNotFoundException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 404
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'Gagal mengambil category',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage()
+                ]
+            );
+        }
+    }
+    public function showBySlug(GetCategoryBySlugUsecase $useCase, string $slug)
+    {
+        try {
+            $result = $useCase->execute(
+                new GetCategoryBySlugDto(slug: $slug)
             );
 
             return ApiResponse::success(

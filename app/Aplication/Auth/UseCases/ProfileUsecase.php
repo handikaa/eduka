@@ -18,7 +18,6 @@ class ProfileUsecase
     public function execute(ProfileUserDto $dto): array
     {
 
-
         $user = $this->userRepository->findById($dto->user->id);
 
         if (!$user) {

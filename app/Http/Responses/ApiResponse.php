@@ -33,7 +33,7 @@ class ApiResponse
         ];
 
         if (!is_null($errors)) {
-            $response['error'] = $errors;
+            $response['errors'] = $errors;
         }
         return response()->json($response, $code);
     }

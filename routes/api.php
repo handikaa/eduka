@@ -41,13 +41,16 @@ Route::prefix('v1')->group(function () {
      */
     Route::prefix('courses')->group(function () {
         // Public routes - Get courses
-        Route::get('/', [CourseController::class, 'index'])
-            ->name('courses.index');
-        Route::get('/{id}', [CourseController::class, 'show'])
-            ->name('courses.show');
+
 
         // Protected routes - Create/Update/Delete (require authentication)
         Route::middleware('auth:sanctum')->group(function () {
+            Route::get('/', [CourseController::class, 'index'])
+                ->name('courses.index');
+            Route::get('/{id}', [CourseController::class, 'show'])
+                ->name('courses.show');
+            Route::get('/slug/{slug}', [CourseController::class, 'showBySlug'])
+                ->name('courses.showBySlug');
             Route::post('/', [CourseController::class, 'store'])
                 ->name('courses.store');
             Route::put('/{id}', [CourseController::class, 'update'])
@@ -58,6 +61,10 @@ Route::prefix('v1')->group(function () {
                 ->name('courses.restore');
             Route::delete('/{id}/force', [CourseController::class, 'forceDelete'])
                 ->name('courses.forceDelete');
+
+
+            Route::patch('/{slug}/status', [CourseController::class, 'updateStatus'])
+                ->name('courses.updateStatus');
 
             /**
              * Lesson Management Routes (Nested under Courses)
@@ -79,12 +86,16 @@ Route::prefix('v1')->group(function () {
             Route::get('/{id}', [CategoryController::class, 'show'])
                 ->name('categories.show');
 
+            Route::get('/slug/{slug}', [CategoryController::class, 'showBySlug'])
+                ->name('categories.showBySlug');
+
             Route::get('/', [CategoryController::class, 'index'])
                 ->name('categories.index');
             Route::post('/', [CategoryController::class, 'store'])
                 ->name('categories.store');
             Route::put('/{id}', [CategoryController::class, 'update'])
                 ->name('categories.update');
+
             Route::delete('/{id}', [CategoryController::class, 'destroy'])
                 ->name('categories.destroy');
         });

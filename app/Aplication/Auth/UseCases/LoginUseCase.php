@@ -6,7 +6,6 @@ use App\Aplication\Auth\DTOs\LoginDto;
 use App\Aplication\Auth\Services\TokenIssuer;
 use App\Domain\User\Repositories\UserRepositoryInterface;
 use App\Aplication\Auth\Services\PasswordHasher;
-use App\Http\Requests\LoginRequest;
 use App\Domain\Auth\Exceptions\InvalidCredentialsException;
 
 class LoginUseCase
