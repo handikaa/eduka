@@ -2,7 +2,9 @@
 
 namespace App\Aplication\Courses\UseCases;
 
+use App\Aplication\Courses\DTOs\GetAllCoursesDto;
 use App\Domain\Courses\Repositories\CourseRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class GetAllCoursesUsecase
 {
@@ -10,8 +12,8 @@ class GetAllCoursesUsecase
         private CourseRepositoryInterface $courseRepository
     ) {}
 
-    public function execute()
+    public function execute(GetAllCoursesDto $dto): LengthAwarePaginator
     {
-        return $this->courseRepository->findAll();
+        return $this->courseRepository->findAll($dto);
     }
 }

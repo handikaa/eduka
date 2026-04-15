@@ -4,11 +4,18 @@ namespace App\Infrastructure\Persistance\Eloquent\Repositories;
 
 use App\Domain\Courses\Repositories\CourseRepositoryInterface;
 use App\Infrastructure\Persistance\Eloquent\Models\Course;
+use App\Aplication\Courses\DTOs\GetAllCoursesDto;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class EloquentCourseRepository implements CourseRepositoryInterface
 {
+    public function __construct(
+        protected Course $model
+    ) {}
+
     public function create(array $data): Course
     {
+
         $categoryIds = $data['category_ids'] ?? [];
         unset($data['category_ids']);
 
@@ -71,8 +78,69 @@ class EloquentCourseRepository implements CourseRepositoryInterface
         return $course->restore();
     }
 
-    public function findAll(): array
+
+    public function incrementEnrolledCount(int $courseId, int $amount = 1): void
     {
-        return Course::all()->all();
+        $this->model
+            ->where('id', $courseId)
+            ->increment('enrolled_count', $amount);
+    }
+
+    public function decrementEnrolledCount(int $courseId, int $amount = 1): void
+    {
+        $this->model
+            ->where('id', $courseId)
+            ->where('enrolled_count', '>', 0)
+            ->decrement('enrolled_count', $amount);
+    }
+
+
+
+    public function findAll(GetAllCoursesDto $dto): LengthAwarePaginator
+    {
+        $allowedSortBy = [
+            'created_at',
+            'title',
+            'price',
+            'rating_avg',
+            'enrolled_count',
+        ];
+
+        $sortBy = in_array($dto->sortBy, $allowedSortBy, true)
+            ? $dto->sortBy
+            : 'created_at';
+
+        $sortDirection = $dto->sortDirection === 'asc' ? 'asc' : 'desc';
+
+        $query = $this->model->newQuery()
+            ->with(['categories', 'lessons', 'instructor']);
+
+        if (!is_null($dto->userId)) {
+            $query->where('instructor_id', $dto->userId);
+        }
+
+        if (!is_null($dto->status)) {
+            $query->where('status', $dto->status);
+        }
+
+        if (!is_null($dto->level)) {
+            $query->where('level', $dto->level);
+        }
+
+        if (!is_null($dto->search)) {
+            $query->where(function ($q) use ($dto) {
+                $q->where('title', 'like', "%{$dto->search}%")
+                    ->orWhere('description', 'like', "%{$dto->search}%");
+            });
+        }
+
+        if (!is_null($dto->categoryId)) {
+            $query->whereHas('categories', function ($q) use ($dto) {
+                $q->where('categories.id', $dto->categoryId);
+            });
+        }
+
+        return $query->orderBy($sortBy, $sortDirection)
+            ->paginate($dto->perPage, ['*'], 'page', $dto->page);
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\EnrollmentController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -41,8 +42,6 @@ Route::prefix('v1')->group(function () {
      */
     Route::prefix('courses')->group(function () {
         // Public routes - Get courses
-
-
         // Protected routes - Create/Update/Delete (require authentication)
         Route::middleware('auth:sanctum')->group(function () {
             Route::get('/', [CourseController::class, 'index'])
@@ -73,6 +72,26 @@ Route::prefix('v1')->group(function () {
                 ->name('lessons.restore');
             Route::delete('/{courseId}/lessons/{lessonId}/force', [CourseController::class, 'forceDeleteLesson'])
                 ->name('lessons.forceDelete');
+        });
+    });
+
+    /**
+     * Enrollment Student to Course
+     */
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::prefix('enrollments')->group(function () {
+
+            Route::post('/{id}/enroll', [EnrollmentController::class, 'store'])
+                ->name('enrollment.store');
+
+            Route::get('/me', [EnrollmentController::class, 'indexMyEnrollments'])
+                ->name('enrollment.indexMyEnrollments');
+            Route::get('/courses/{id}', [EnrollmentController::class, 'indexByCourse'])
+                ->whereNumber('id')->name('enrollment.indexByCourse');
+
+            Route::get('/{id}', [EnrollmentController::class, 'show'])
+                ->whereNumber('id')
+                ->name('enrollment.show');
         });
     });
 

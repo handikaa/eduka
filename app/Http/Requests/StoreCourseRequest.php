@@ -11,10 +11,10 @@ class StoreCourseRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
-    {
-        return $this->user()?->role === 'instructor';
-    }
+    // public function authorize()
+    // {
+    //     return $this->user()?->role === 'instructor';
+    // }
 
     /**
      * Get the validation rules that apply to the request.
