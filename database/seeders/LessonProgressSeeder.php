@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Enrollment;
-use App\Models\LessonProgress;
+use App\Infrastructure\Persistance\Eloquent\Models\Enrollment;
+use App\Infrastructure\Persistance\Eloquent\Models\LessonProgress;
 use Illuminate\Database\Seeder;
 
 class LessonProgressSeeder extends Seeder

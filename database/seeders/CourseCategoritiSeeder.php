@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Course;
-use App\Models\Category;
+use App\Infrastructure\Persistance\Eloquent\Models\Course;
+use App\Infrastructure\Persistance\Eloquent\Models\Category;
 use Illuminate\Database\Seeder;
 
 class CourseCategoritiSeeder extends Seeder

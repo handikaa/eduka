@@ -2,12 +2,28 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Aplication\Auth\DTOs\ProfileUserDto;
+use App\Http\Responses\ApiResponse;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Aplication\Auth\DTOs\GetUserByIdDto;
+use App\Aplication\Auth\DTOs\LoginDto;
+use App\Aplication\Auth\DTOs\LogoutUserDto;
+use App\Aplication\Auth\DTOs\RegisterDto;
+use App\Aplication\Auth\UseCases\GetUserByIdUsecase;
+use App\Aplication\Auth\UseCases\LoginUseCase;
+use App\Aplication\Auth\UseCases\ProfileUsecase;
+use App\Aplication\Auth\UseCases\LogoutUsecase;
+use App\Aplication\Auth\UseCases\RegisterUsecase;
+use App\Domain\Auth\Exceptions\UserNotFoundException;
+use App\Domain\Auth\Exceptions\InvalidCredentialsException;
+use App\Domain\Auth\Exceptions\InactiveUserException;
+use App\Domain\Auth\Exceptions\UserAlreadyExistsException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Stmt\TryCatch;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -15,51 +31,47 @@ class AuthController extends Controller
      * Handle user registration.
      * POST /api/auth/register
      */
-    public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:student,instructor',
-        ], [
-            'email.unique' => 'Email sudah terdaftar',
-            'password.confirmed' => 'Password tidak sesuai',
-            'password.min' => 'Password minimal 8 karakter',
-            'role.in' => 'Role harus student atau instructor',
-        ]);
-
+    public function register(
+        RegisterRequest $request,
+        RegisterUseCase $registerUseCase
+    ) {
         try {
-            $user = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password_hash' => Hash::make($validated['password']),
-                'role' => $validated['role'],
-                'is_active' => true,
-            ]);
+            $result = $registerUseCase->execute(
+                new RegisterDto(
+                    name: $request->string('name')->toString(),
+                    email: $request->string('email')->toString(),
+                    password: $request->string('password')->toString(),
+                    role: $request->string('role')->toString(),
+                )
+            );
 
-            $token = $user->createToken('auth_token')->plainTextToken;
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Registrasi berhasil',
-                'data' => [
+            return ApiResponse::success(
+                data: [
                     'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'role' => $user->role,
+                        'id' => $result['user']->id,
+                        'name' => $result['user']->name,
+                        'email' => $result['user']->email,
+                        'role' => $result['user']->role,
                     ],
-                    'token' => $token,
-                    'token_type' => 'Bearer',
+                    'token' => $result['token'],
+                    'token_type' => $result['token_type'],
                 ],
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Registrasi gagal',
-                'error' => $e->getMessage(),
-            ], 500);
+                message: 'Registrasi berhasil',
+                code: 201,
+            );
+        } catch (UserAlreadyExistsException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 409,
+            );
+        } catch (\Throwable $e) {
+            return ApiResponse::error(
+                message: 'Registrasi gagal',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage(),
+                ]
+            );
         }
     }
 
@@ -67,131 +79,152 @@ class AuthController extends Controller
      * Handle user login.
      * POST /api/auth/login
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request, LoginUseCase $loginUseCase)
     {
-        $validated = $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string|min:8',
-        ], [
-            'email.required' => 'Email harus diisi',
-            'email.email' => 'Format email tidak valid',
-            'password.required' => 'Password harus diisi',
-            'password.min' => 'Password minimal 8 karakter',
-        ]);
+        try {
+            $result = $loginUseCase->execute(
+                new LoginDto(
+                    email: $request->string('email')->toString(),
+                    password: $request->string('password')->toString(),
+                )
+            );
 
-        $user = User::where('email', $validated['email'])->first();
-
-        if (!$user || !Hash::check($validated['password'], $user->password_hash)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email atau password salah',
-            ], 401);
-        }
-
-        if (!$user->is_active) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Akun Anda tidak aktif',
-            ], 403);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Login berhasil',
-            'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role,
-                    'is_active' => $user->is_active,
-                    'avatar_url' => $user->avatar_url,
+            return ApiResponse::success(
+                data: [
+                    'user' => [
+                        'id' => $result['user']->id,
+                        'name' => $result['user']->name,
+                        'email' => $result['user']->email,
+                        'role' => $result['user']->role,
+                    ],
+                    'token' => $result['token'],
+                    'token_type' => $result['token_type'],
                 ],
-                'token' => $token,
-                'token_type' => 'Bearer',
-            ],
-        ], 200);
-    }
-
-    /**
-     * Handle user logout.
-     * POST /api/auth/logout
-     */
-    // public function logout(Request $request)
-    // {
-    //     try {
-    //         $request->user()->currentAccessToken()->delete();
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'Logout berhasil',
-    //         ], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Logout gagal',
-    //             'error' => $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
-
-    /**
-     * Get current user profile.
-     * GET /api/auth/profile
-     */
-    public function profile(Request $request)
-    {
-        $user = $request->user();
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-                'is_active' => $user->is_active,
-                'avatar_url' => $user->avatar_url,
-                'created_at' => $user->created_at,
-            ],
-        ], 200);
+                message: 'Login berhasil',
+                code: 200,
+            );
+        } catch (InvalidCredentialsException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 401,
+            );
+        } catch (InactiveUserException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 403,
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'Login gagal',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage(),
+                ]
+            );
+        }
     }
 
     /**
      * Get user by ID.
      * GET /api/auth/user/{id}
      */
-    public function getUserById($id)
+    public function getUserById(GetUserByIdUsecase $usecase, int $id)
     {
         try {
-            $user = User::findOrFail($id);
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role,
-                    'is_active' => $user->is_active,
-                    'avatar_url' => $user->avatar_url,
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at,
+            $result = $usecase->execute(new GetUserByIdDto(id: $id));
+            return ApiResponse::success(
+                data: [
+                    'user' => [
+                        'id' => $result['user']->id,
+                        'name' => $result['user']->name,
+                        'email' => $result['user']->email,
+                        'role' => $result['user']->role,
+                    ],
                 ],
-            ], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User tidak ditemukan',
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil data user',
-                'error' => $e->getMessage(),
-            ], 500);
+                message: 'User ditemukan',
+                code: 200,
+            );
+        } catch (UserNotFoundException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 404,
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'User tidak ditemukan',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
+    /**
+     * Handle user logout.
+     * POST /api/auth/logout
+     */
+    public function logout(LogoutUsecase $logoutUsecase,   Request $request,)
+    {
+        try {
+            $logoutUsecase->execute(
+                new LogoutUserDto(
+                    user: $request->user(),
+                )
+            );
+
+            return ApiResponse::success(
+                message: 'Logout berhasil',
+                code: 200,
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'User tidak ditemukan',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
+    /**
+     * Get current user profile.
+     * GET /api/auth/profile
+     */
+    public function me(Request $request, ProfileUsecase $usecase)
+    {
+        try {
+            $result = $usecase->execute(
+                new ProfileUserDto(
+                    user: $request->user(),
+                )
+            );
+            return ApiResponse::success(
+                data: [
+                    'user' => [
+                        'id' => $result['user']->id,
+                        'name' => $result['user']->name,
+                        'email' => $result['user']->email,
+                        'role' => $result['user']->role,
+                    ],
+                ],
+                message: 'Profile user ditemukan',
+                code: 200,
+            );
+        } catch (UserNotFoundException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 404,
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'User tidak ditemukan',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage(),
+                ]
+            );
         }
     }
 }

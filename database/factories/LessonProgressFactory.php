@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\Lesson;
-use App\Models\LessonProgress;
-use App\Models\User;
+use App\Infrastructure\Persistance\Eloquent\Models\Lesson;
+
+use App\Infrastructure\Persistance\Eloquent\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\LessonProgress>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Infrastructure\Persistance\Eloquent\Models\LessonProgress>
  */
 class LessonProgressFactory extends Factory
 {

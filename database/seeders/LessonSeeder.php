@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Course;
-use App\Models\Lesson;
+use App\Infrastructure\Persistance\Eloquent\Models\Course;
+use App\Infrastructure\Persistance\Eloquent\Models\Lesson;
 use Illuminate\Database\Seeder;
 
 class LessonSeeder extends Seeder
