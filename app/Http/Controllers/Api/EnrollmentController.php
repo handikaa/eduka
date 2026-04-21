@@ -7,10 +7,12 @@ use App\Aplication\Enrollment\UseCases\EnrollStudentUsecase;
 use App\Aplication\Enrollment\UseCases\GetStudentEnrollmentsUsecase;
 use App\Aplication\Enrollment\UseCases\GetCourseEnrollmentsUsecase;
 use App\Aplication\Enrollment\UseCases\GetEnrollmentDetailUsecase;
+use App\Aplication\Enrollment\UseCases\GetStudentEnrollmentDetailUsecase;
 use App\Aplication\Enrollment\DTOs\EnrollStudentDto;
 use App\Aplication\Enrollment\DTOs\GetStudentEnrollmentsDto;
 use App\Aplication\Enrollment\DTOs\GetCourseEnrollmentsDto;
 use App\Aplication\Enrollment\DTOs\GetEnrollmentDetailDto;
+use App\Aplication\Enrollment\DTOs\GetStudentEnrollmentDetailDto;
 use App\Http\Responses\ApiResponse;
 use App\Http\Resources\EnrollmentStudentResource;
 use App\Domain\User\Exceptions\OnlyStudentCanEnrollCourseException;
@@ -21,6 +23,7 @@ use App\Domain\Enrollment\Exceptions\CourseQuotaIsFullException;
 use App\Domain\Enrollment\Exceptions\OnlyInstructorCanAccessCourseEnrollmentsException;
 use App\Domain\Enrollment\Exceptions\InstructorCannotAccessOtherCourseEnrollmentsException;
 use App\Domain\Enrollment\Exceptions\EnrollmentNotFoundException;
+use App\Domain\Enrollment\Exceptions\StudentCannotAccessOtherEnrollmentException;
 use App\Domain\Enrollment\Exceptions\UnauthorizedToViewEnrollmentDetailException;
 use App\Http\Resources\EnrollmentListResource;
 use App\Http\Resources\CourseEnrollmentListResource;
@@ -223,6 +226,60 @@ class EnrollmentController extends Controller
         } catch (Throwable $e) {
             return ApiResponse::error(
                 message: 'Gagal mengambil daftar enrollment',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
+    public function showStudentDetail(
+        int $id,
+        Request $request,
+        GetStudentEnrollmentDetailUsecase $usecase
+    ) {
+        try {
+            $student = $request->user();
+
+            if (! $student) {
+                return ApiResponse::error(
+                    message: 'Unauthenticated',
+                    code: 401
+                );
+            }
+
+            $dto = new GetStudentEnrollmentDetailDto(
+                enrollmentId: $id
+            );
+
+            $result = $usecase->execute(
+                student: $student,
+                dto: $dto
+            );
+
+            return ApiResponse::success(
+                data: $result,
+                message: 'Berhasil mengambil detail enrollment student'
+            );
+        } catch (OnlyStudentCanAccessEnrollmentException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 403
+            );
+        } catch (StudentCannotAccessOtherEnrollmentException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 403
+            );
+        } catch (EnrollmentNotFoundException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 404
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'Gagal mengambil detail enrollment student',
                 code: 500,
                 errors: [
                     'exception' => $e->getMessage(),
