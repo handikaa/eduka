@@ -19,6 +19,8 @@ class CourseResource extends JsonResource
             'quota' => $this->quota,
             'status' => $this->status,
             'thumbnail_url' => $this->thumbnail_url,
+            'rating_count' => $this->rating_count,
+            'rating_avg' => $this->rating_avg,
             'created_at' => $this->created_at,
             'categories' => CategoryResource::collection(
                 $this->whenLoaded('categories')

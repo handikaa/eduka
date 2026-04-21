@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\EnrollmentController;
 use App\Http\Controllers\LessonProgressController;
+use App\Http\Controllers\Api\CourseReviewController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -157,6 +158,36 @@ Route::prefix('v1')->group(function () {
             Route::patch('/lessons/{id}/last-accessed', [LessonProgressController::class, 'updateLastAccessed'])
                 ->whereNumber('id')
                 ->name('lesson-progress.updateLastAccessed');
+        });
+    });
+    /**
+     * CourseReview Routes (Public GET, Protected Create/Update/Delete)
+     */
+
+    Route::prefix('course-reviews')->group(function () {
+
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::post('/student/courses/{id}', [CourseReviewController::class, 'store'])
+                ->whereNumber('id')
+                ->name('student.course-review.store');
+
+            Route::get('/courses/{id}', [CourseReviewController::class, 'indexByCourse'])
+                ->whereNumber('id')
+                ->name('course-review.indexByCourse');
+            Route::get('/student/courses/{id}', [CourseReviewController::class, 'showStudentReviewByCourse'])
+                ->whereNumber('id')
+                ->name('student.course-review.showByCourse');
+
+            Route::patch('/student/courses/{id}', [CourseReviewController::class, 'updateByCourse'])
+                ->whereNumber('id')
+                ->name('student.course-review.updateByCourse');
+            Route::delete('/student/courses/{id}', [CourseReviewController::class, 'deleteByCourse'])
+                ->whereNumber('id')
+                ->name('student.course-review.deleteByCourse');
+
+            Route::patch('/student/courses/{id}/restore', [CourseReviewController::class, 'restoreByCourse'])
+                ->whereNumber('id')
+                ->name('student.course-review.restoreByCourse');
         });
     });
 });

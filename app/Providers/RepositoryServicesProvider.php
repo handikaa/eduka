@@ -7,6 +7,7 @@ use App\Domain\User\Repositories\UserRepositoryInterface;
 use App\Domain\Category\Repositories\CategoryRepositoryInterface;
 use App\Domain\Courses\Repositories\CourseRepositoryInterface;
 use App\Domain\Courses\Repositories\LessonRepositoryInterface;
+use App\Domain\CourseReview\Repositories\CourseReviewRepositoryInterface;
 use App\Domain\LessonProgress\Repositories\LessonProgressRepositoryInterface;
 use App\Infrastructure\Persistance\Eloquent\Repositories\EloquentLessonRepository;
 use App\Infrastructure\Persistance\Eloquent\Repositories\EloquentUserRepository;
@@ -15,6 +16,7 @@ use App\Infrastructure\Persistance\Eloquent\Repositories\EloquentCourseRepositor
 use App\Domain\Enrollment\Repositories\EnrollmentRepositoryInterface;
 use App\Infrastructure\Persistance\Eloquent\Repositories\EloquentEnrollmentRepository;
 use App\Infrastructure\Persistance\Eloquent\Repositories\EloquentLessonProgressRepository;
+use App\Infrastructure\Persistance\Eloquent\Repositories\EloquentCourseReviewRepository;
 
 class RepositoryServicesProvider extends ServiceProvider
 {
@@ -46,6 +48,11 @@ class RepositoryServicesProvider extends ServiceProvider
         $this->app->bind(
             LessonProgressRepositoryInterface::class,
             EloquentLessonProgressRepository::class
+        );
+
+        $this->app->bind(
+            CourseReviewRepositoryInterface::class,
+            EloquentCourseReviewRepository::class
         );
     }
 
