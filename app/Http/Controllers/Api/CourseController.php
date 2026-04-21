@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Aplication\Courses\DTOs\CreateCourseDto;
 use App\Aplication\Courses\DTOs\UpdateCourseDTO;
 use App\Aplication\Courses\DTOs\UpdateCourseStatusDto;
+use App\Aplication\Courses\DTOs\GetAllCoursesDto;
 use App\Http\Responses\ApiResponse;
 use App\Http\Requests\StoreCourseRequest;
 use App\Http\Requests\UpdateCourseStatusRequest;
@@ -26,6 +27,7 @@ use App\Domain\Courses\Exceptions\CategoryIsRequiredException;
 use App\Domain\Courses\Exceptions\UnauthorizedCourseAccessException;
 use App\Domain\Courses\Exceptions\InvalidCourseStatusException;
 use Throwable;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class CourseController extends Controller
 {
@@ -33,16 +35,26 @@ class CourseController extends Controller
      * Get all courses with instructor and category info
      * GET /api/v1/courses
      */
-    public function index(GetAllCoursesUsecase $usecase)
+    public function index(Request $request, GetAllCoursesUsecase $usecase)
     {
-        $courses = $usecase->execute();
+        $dto = GetAllCoursesDto::fromRequest($request);
 
-        return ApiResponse::success(
-            CourseResource::collection($courses),
-            'List courses'
+        /** @var LengthAwarePaginator $courses */
+        $courses = $usecase->execute($dto);
+
+        return ApiResponse::successPaginated(
+            data: CourseResource::collection($courses->items()),
+            pagination: [
+                'current_page' => $courses->currentPage(),
+                'per_page' => $courses->perPage(),
+                'total' => $courses->total(),
+                'last_page' => $courses->lastPage(),
+                'from' => $courses->firstItem(),
+                'to' => $courses->lastItem(),
+            ],
+            message: 'Berhasil mengambil list course'
         );
     }
-
 
     /**
      * Get course detail by ID

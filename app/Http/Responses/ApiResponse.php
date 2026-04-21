@@ -22,6 +22,21 @@ class ApiResponse
         return response()->json($response, $code);
     }
 
+    public static function successPaginated(
+        mixed $data,
+        array $pagination,
+        string $message = 'Success',
+        int $code = 200
+    ): JsonResponse {
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => $data,
+            'pagination' => $pagination,
+        ], $code);
+    }
+
+
     public static function error(
         string $message = 'Error',
         int $code = 400,
