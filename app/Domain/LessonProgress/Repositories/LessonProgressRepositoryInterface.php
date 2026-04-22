@@ -18,4 +18,5 @@ interface LessonProgressRepositoryInterface
     public function countCompletedByStudentAndCourse(int $studentId, int $courseId): int;
 
     public function getByStudentAndLessonIds(int $studentId, array $lessonIds): Collection;
+    public function findLatestAccessedByStudentId(int $studentId): ?LessonProgress;
 }

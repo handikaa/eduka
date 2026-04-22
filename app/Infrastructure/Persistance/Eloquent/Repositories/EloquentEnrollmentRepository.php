@@ -90,4 +90,29 @@ class EloquentEnrollmentRepository implements EnrollmentRepositoryInterface
             ->with(['user', 'course'])
             ->find($id);
     }
+
+    public function countByStudentId(int $studentId): int
+    {
+        return $this->model
+            ->where('user_id', $studentId)
+            ->count();
+    }
+
+    public function countByStudentIdAndStatus(int $studentId, string $status): int
+    {
+        return $this->model
+            ->where('user_id', $studentId)
+            ->where('status', $status)
+            ->count();
+    }
+    public function countByCourseIds(array $courseIds): int
+    {
+        if (empty($courseIds)) {
+            return 0;
+        }
+
+        return $this->model
+            ->whereIn('course_id', $courseIds)
+            ->count();
+    }
 }

@@ -72,4 +72,28 @@ class EloquentCourseReviewRepository implements CourseReviewRepositoryInterface
             ->where('is_delete', true)
             ->first();
     }
+
+    public function countActiveByCourseIds(array $courseIds): int
+    {
+        if (empty($courseIds)) {
+            return 0;
+        }
+
+        return $this->model
+            ->whereIn('course_id', $courseIds)
+            ->where('is_delete', false)
+            ->count();
+    }
+
+    public function getActiveAverageRatingByCourseIds(array $courseIds): float
+    {
+        if (empty($courseIds)) {
+            return 0;
+        }
+
+        return (float) $this->model
+            ->whereIn('course_id', $courseIds)
+            ->where('is_delete', false)
+            ->avg('rating');
+    }
 }

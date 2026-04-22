@@ -21,4 +21,8 @@ interface CourseReviewRepositoryInterface
 
     public function update(CourseReview $courseReview, array $data): CourseReview;
     public function findDeletedByStudentAndCourse(int $studentId, int $courseId): ?CourseReview;
+
+    public function countActiveByCourseIds(array $courseIds): int;
+
+    public function getActiveAverageRatingByCourseIds(array $courseIds): float;
 }

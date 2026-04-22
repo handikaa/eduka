@@ -55,4 +55,13 @@ class EloquentLessonProgressRepository implements LessonProgressRepositoryInterf
             ->whereIn('lesson_id', $lessonIds)
             ->get();
     }
+    public function findLatestAccessedByStudentId(int $studentId): ?LessonProgress
+    {
+        return $this->model
+            ->with(['lesson.course'])
+            ->where('user_id', $studentId)
+            ->whereNotNull('last_accessed_at')
+            ->orderByDesc('last_accessed_at')
+            ->first();
+    }
 }
