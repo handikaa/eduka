@@ -23,6 +23,7 @@ use App\Domain\CourseReview\Exceptions\StudentAlreadyReviewedCourseException;
 use App\Domain\CourseReview\Exceptions\CourseReviewNotFoundException;
 use App\Domain\CourseReview\Exceptions\DeletedCourseReviewNotFoundException;
 use App\Domain\CourseReview\Exceptions\StudentMustCompleteCourseBeforeReviewException;
+use App\Domain\CourseReview\Exceptions\StudentCourseReviewNotFoundException;
 
 class CourseReviewController extends Controller
 {
@@ -191,6 +192,11 @@ class CourseReviewController extends Controller
                 message: $e->getMessage(),
                 code: 404
             );
+        } catch (StudentCourseReviewNotFoundException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 404
+            );
         } catch (Throwable $e) {
             return ApiResponse::error(
                 message: 'Gagal mengambil review student pada course',
@@ -201,7 +207,6 @@ class CourseReviewController extends Controller
             );
         }
     }
-
     public function updateByCourse(
         int $id,
         Request $request,
@@ -230,16 +235,14 @@ class CourseReviewController extends Controller
 
             return ApiResponse::success(
                 data: [
-                    'review' => [
-                        'id' => $result->id,
-                        'course_id' => $result->course_id,
-                        'user_id' => $result->user_id,
-                        'rating' => $result->rating,
-                        'comment' => $result->comment,
-                        'is_delete' => $result->is_delete,
-                        'created_at' => $result->created_at,
-                        'updated_at' => $result->updated_at,
-                    ]
+                    'id' => $result->id,
+                    'course_id' => $result->course_id,
+                    'user_id' => $result->user_id,
+                    'rating' => $result->rating,
+                    'comment' => $result->comment,
+                    'is_delete' => $result->is_delete,
+                    'created_at' => $result->created_at,
+                    'updated_at' => $result->updated_at,
                 ],
                 message: 'Berhasil memperbarui review course'
             );

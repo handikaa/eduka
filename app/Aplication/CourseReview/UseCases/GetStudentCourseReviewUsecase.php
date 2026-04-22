@@ -7,6 +7,7 @@ use App\Domain\Courses\Exceptions\CourseNotFoundException;
 use App\Domain\Courses\Repositories\CourseRepositoryInterface;
 use App\Domain\CourseReview\Repositories\CourseReviewRepositoryInterface;
 use App\Domain\CourseReview\Exceptions\OnlyStudentCanCreateCourseReviewException;
+use App\Domain\CourseReview\Exceptions\StudentCourseReviewNotFoundException;
 use App\Infrastructure\Persistance\Eloquent\Models\CourseReview;
 use App\Infrastructure\Persistance\Eloquent\Models\User;
 
@@ -17,7 +18,7 @@ class GetStudentCourseReviewUsecase
         protected CourseRepositoryInterface $courseRepository,
     ) {}
 
-    public function execute(User $student, GetStudentCourseReviewDto $dto): ?CourseReview
+    public function execute(User $student, GetStudentCourseReviewDto $dto): CourseReview
     {
         if ($student->role !== 'student') {
             throw new OnlyStudentCanCreateCourseReviewException();
@@ -29,9 +30,15 @@ class GetStudentCourseReviewUsecase
             throw new CourseNotFoundException();
         }
 
-        return $this->courseReviewRepository->findActiveByStudentAndCourse(
+        $review = $this->courseReviewRepository->findActiveByStudentAndCourse(
             studentId: $student->id,
             courseId: $dto->courseId
         );
+
+        if (! $review) {
+            throw new StudentCourseReviewNotFoundException();
+        }
+
+        return $review;
     }
 }

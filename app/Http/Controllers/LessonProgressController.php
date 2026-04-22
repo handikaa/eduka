@@ -54,14 +54,12 @@ class LessonProgressController extends Controller
 
             return ApiResponse::success(
                 data: [
-                    'lesson_progress' => [
-                        'id' => $result->id,
-                        'user_id' => $result->user_id,
-                        'lesson_id' => $result->lesson_id,
-                        'status' => $result->status,
-                        'completed_at' => $result->completed_at,
-                        'last_accessed_at' => $result->last_accessed_at,
-                    ]
+                    'id' => $result->id,
+                    'user_id' => $result->user_id,
+                    'lesson_id' => $result->lesson_id,
+                    'status' => $result->status,
+                    'completed_at' => $result->completed_at,
+                    'last_accessed_at' => $result->last_accessed_at,
                 ],
                 message: 'Berhasil memulai progress lesson'
             );
@@ -112,14 +110,12 @@ class LessonProgressController extends Controller
 
             return ApiResponse::success(
                 data: [
-                    'lesson_progress' => [
-                        'id' => $result->id,
-                        'user_id' => $result->user_id,
-                        'lesson_id' => $result->lesson_id,
-                        'status' => $result->status,
-                        'completed_at' => $result->completed_at,
-                        'last_accessed_at' => $result->last_accessed_at,
-                    ]
+                    'id' => $result->id,
+                    'user_id' => $result->user_id,
+                    'lesson_id' => $result->lesson_id,
+                    'status' => $result->status,
+                    'completed_at' => $result->completed_at,
+                    'last_accessed_at' => $result->last_accessed_at,
                 ],
                 message: 'Berhasil menyelesaikan lesson'
             );
@@ -327,14 +323,12 @@ class LessonProgressController extends Controller
 
             return ApiResponse::success(
                 data: [
-                    'lesson_progress' => [
-                        'id' => $result->id,
-                        'user_id' => $result->user_id,
-                        'lesson_id' => $result->lesson_id,
-                        'status' => $result->status,
-                        'completed_at' => $result->completed_at,
-                        'last_accessed_at' => $result->last_accessed_at,
-                    ]
+                    'id' => $result->id,
+                    'user_id' => $result->user_id,
+                    'lesson_id' => $result->lesson_id,
+                    'status' => $result->status,
+                    'completed_at' => $result->completed_at,
+                    'last_accessed_at' => $result->last_accessed_at,
                 ],
                 message: 'Berhasil memperbarui last accessed lesson progress'
             );
