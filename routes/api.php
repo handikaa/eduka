@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\EnrollmentController;
 use App\Http\Controllers\LessonProgressController;
 use App\Http\Controllers\Api\CourseReviewController;
+use App\Http\Controllers\Api\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -188,6 +189,22 @@ Route::prefix('v1')->group(function () {
             Route::patch('/student/courses/{id}/restore', [CourseReviewController::class, 'restoreByCourse'])
                 ->whereNumber('id')
                 ->name('student.course-review.restoreByCourse');
+        });
+    });
+    Route::prefix('dashboard')->group(function () {
+
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::get('/student/summary', [DashboardController::class, 'studentSummary'])
+                ->name('student.dashboard.summary');
+
+            Route::get('/student/continue-learning', [DashboardController::class, 'studentContinueLearning'])
+                ->name('student.dashboard.continueLearning');
+
+            Route::get('/instructor/summary', [DashboardController::class, 'instructorSummary'])
+                ->name('instructor.dashboard.summary');
+
+            Route::get('/instructor/course-performance', [DashboardController::class, 'instructorCoursePerformance'])
+                ->name('instructor.dashboard.coursePerformance');
         });
     });
 });

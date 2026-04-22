@@ -28,4 +28,11 @@ interface CourseRepositoryInterface
     public function incrementEnrolledCount(int $courseId, int $amount = 1): void;
 
     public function decrementEnrolledCount(int $courseId, int $amount = 1): void;
+
+    public function countByInstructorId(int $instructorId): int;
+
+    public function countByInstructorIdAndStatus(int $instructorId, string $status): int;
+
+    public function getIdsByInstructorId(int $instructorId): array;
+    public function getPerformanceByInstructorId(int $instructorId): array;
 }

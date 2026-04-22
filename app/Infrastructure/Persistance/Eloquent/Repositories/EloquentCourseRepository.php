@@ -143,4 +143,49 @@ class EloquentCourseRepository implements CourseRepositoryInterface
         return $query->orderBy($sortBy, $sortDirection)
             ->paginate($dto->perPage, ['*'], 'page', $dto->page);
     }
+    public function countByInstructorId(int $instructorId): int
+    {
+        return $this->model
+            ->where('instructor_id', $instructorId)
+            ->count();
+    }
+
+    public function countByInstructorIdAndStatus(int $instructorId, string $status): int
+    {
+        return $this->model
+            ->where('instructor_id', $instructorId)
+            ->where('status', $status)
+            ->count();
+    }
+
+    public function getIdsByInstructorId(int $instructorId): array
+    {
+        return $this->model
+            ->where('instructor_id', $instructorId)
+            ->pluck('id')
+            ->all();
+    }
+    public function getPerformanceByInstructorId(int $instructorId): array
+    {
+        $courses = $this->model
+            ->withCount('lessons')
+            ->where('instructor_id', $instructorId)
+            ->orderByDesc('created_at')
+            ->get();
+
+        return $courses->map(function ($course) {
+            return [
+                'course_id' => $course->id,
+                'title' => $course->title,
+                'slug' => $course->slug,
+                'status' => $course->status,
+                'price' => $course->price,
+                'enrolled_count' => $course->enrolled_count,
+                'rating_count' => $course->rating_count,
+                'rating_avg' => $course->rating_avg,
+                'total_lessons' => $course->lessons_count,
+                'created_at' => $course->created_at,
+            ];
+        })->toArray();
+    }
 }

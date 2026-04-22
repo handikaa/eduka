@@ -42,4 +42,10 @@ interface EnrollmentRepositoryInterface
     // public function findActiveByStudentAndCourse(int $studentId, int $courseId): ?Enrollment;
 
     public function findById(int $id): ?Enrollment;
+
+    public function countByStudentId(int $studentId): int;
+
+    public function countByStudentIdAndStatus(int $studentId, string $status): int;
+
+    public function countByCourseIds(array $courseIds): int;
 }
