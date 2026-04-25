@@ -73,8 +73,7 @@ Student adalah user yang berperan sebagai peserta course.
 - memberikan review dan rating course
 - mengubah review
 - menghapus review
-- me-restore review yang dihapus
-- melakukan topup saldo
+- melakukan topup saldo // hold untuk payment gateway
 - melakukan tarik saldo digital
 
 ---

@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\EnrollmentController;
 use App\Http\Controllers\LessonProgressController;
 use App\Http\Controllers\Api\CourseReviewController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -37,6 +38,20 @@ Route::prefix('v1')->group(function () {
                 ->name('auth.me');
             Route::get('user/{id}', [AuthController::class, 'getUserById'])
                 ->name('auth.getUserById');
+        });
+    });
+    /**
+     * Users Routes (Public)
+     */
+    Route::prefix('users')->group(function () {
+   
+        /**
+         * Protected Users Routes
+         */
+
+        Route::middleware('auth:sanctum')->group(function () {
+             Route::get('/', [UserController::class, 'index'])
+            ->name('users.index');
         });
     });
 
