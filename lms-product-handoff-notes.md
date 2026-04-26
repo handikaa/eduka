@@ -61,7 +61,7 @@ LMS ini ditujukan sebagai platform pembelajaran online yang:
 - butuh:
   - upload dan kelola materi dengan mudah
   - monitoring progress siswa
-  - monetisasi course
+  - monetisasi course 
 
 ---
 
