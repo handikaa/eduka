@@ -26,8 +26,11 @@ use App\Domain\Courses\Exceptions\CourseNotFoundException;
 use App\Domain\Courses\Exceptions\CategoryIsRequiredException;
 use App\Domain\Courses\Exceptions\UnauthorizedCourseAccessException;
 use App\Domain\Courses\Exceptions\InvalidCourseStatusException;
-use Throwable;
+use App\Aplication\Courses\Services\CourseThumbnailService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Aplication\Courses\Services\LessonVideoService;
+
+use Throwable;
 
 class CourseController extends Controller
 {
@@ -104,10 +107,26 @@ class CourseController extends Controller
     }
 
 
-    public function store(StoreCourseRequest $request, CreateCourseWithLessonsService $service,)
-    {
+    public function store(
+        StoreCourseRequest $request,
+        CreateCourseWithLessonsService $service,
+        CourseThumbnailService $thumbnailService,
+        LessonVideoService $lessonVideoService
+    ) {
         try {
             $user = $request->user();
+
+            $thumbnailUrl = $thumbnailService->store($request->file('thumbnail'));
+
+            $lessons = $request->input('lessons', []);
+
+            foreach ($lessons as $index => $lesson) {
+                $videoFile = $request->file("lessons.$index.video_file");
+
+                if ($videoFile) {
+                    $lessons[$index]['video_url'] = $lessonVideoService->store($videoFile);
+                }
+            }
 
             $courseDto = new CreateCourseDto(
                 instructorId: $user->id,
@@ -117,12 +136,12 @@ class CourseController extends Controller
                 price: $request->price,
                 quota: $request->quota,
                 categoryIds: $request->input('categories', []),
-                thumbnailUrl: $request->thumbnail_url
+                thumbnailUrl: $thumbnailUrl
             );
 
             $course = $service->execute(
                 $courseDto,
-                $request->lessons ?? []
+                $lessons
             );
 
             return ApiResponse::success(

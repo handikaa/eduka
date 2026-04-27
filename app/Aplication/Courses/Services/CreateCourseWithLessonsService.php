@@ -29,7 +29,7 @@ class CreateCourseWithLessonsService
                     content: $lesson['content'] ?? null,
                     type: $lesson['type'],
                     videoUrl: $lesson['video_url'] ?? null,
-                    isPreview: $lesson['is_preview'] ?? false,
+                    isPreview: filter_var($lesson['is_preview'] ?? false, FILTER_VALIDATE_BOOLEAN),
                     position: $index + 1
                 );
 
