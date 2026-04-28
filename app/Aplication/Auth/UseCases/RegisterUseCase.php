@@ -11,7 +11,6 @@ use App\Domain\Auth\Exceptions\UserAlreadyExistsException;
 
 class RegisterUseCase
 {
-
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private PasswordHasher $passwordHasher,

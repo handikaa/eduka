@@ -15,7 +15,7 @@ use App\Aplication\Auth\UseCases\GetUserByIdUsecase;
 use App\Aplication\Auth\UseCases\LoginUseCase;
 use App\Aplication\Auth\UseCases\ProfileUsecase;
 use App\Aplication\Auth\UseCases\LogoutUsecase;
-use App\Aplication\Auth\UseCases\RegisterUsecase;
+use App\Aplication\Auth\UseCases\RegisterUseCase;
 use App\Domain\Auth\Exceptions\UserNotFoundException;
 use App\Domain\Auth\Exceptions\InvalidCredentialsException;
 use App\Domain\Auth\Exceptions\InactiveUserException;
