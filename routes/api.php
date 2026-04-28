@@ -41,7 +41,7 @@ Route::prefix('v1')->group(function () {
         });
     });
     /**
-     * Users Routes (Public
+     * Users Routes (Publ
      */
     Route::prefix('users')->group(function () {
    
