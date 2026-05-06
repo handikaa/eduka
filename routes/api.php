@@ -44,14 +44,14 @@ Route::prefix('v1')->group(function () {
      * Users Routes (Publ
      */
     Route::prefix('users')->group(function () {
-   
+
         /**
          * Protected Users Routes
          */
 
         Route::middleware('auth:sanctum')->group(function () {
-             Route::get('/', [UserController::class, 'index'])
-            ->name('users.index');
+            Route::get('/', [UserController::class, 'index'])
+                ->name('users.index');
         });
     });
 
@@ -60,14 +60,15 @@ Route::prefix('v1')->group(function () {
      */
     Route::prefix('courses')->group(function () {
         // Public routes - Get courses
+        Route::get('/', [CourseController::class, 'index'])
+            ->name('courses.index');
+        Route::get('/slug/{slug}', [CourseController::class, 'showBySlug'])
+            ->name('courses.showBySlug');
+        Route::get('/{id}', [CourseController::class, 'show'])
+            ->name('courses.show');
+
         // Protected routes - Create/Update/Delete (require authentication)
         Route::middleware('auth:sanctum')->group(function () {
-            Route::get('/', [CourseController::class, 'index'])
-                ->name('courses.index');
-            Route::get('/{id}', [CourseController::class, 'show'])
-                ->name('courses.show');
-            Route::get('/slug/{slug}', [CourseController::class, 'showBySlug'])
-                ->name('courses.showBySlug');
             Route::post('/', [CourseController::class, 'store'])
                 ->name('courses.store');
             Route::put('/{id}', [CourseController::class, 'update'])
@@ -128,6 +129,9 @@ Route::prefix('v1')->group(function () {
     Route::prefix('categories')->group(function () {
         // Public routes - Get categories
         // Protected routes - Create/Update/Delete
+        Route::get('/', [CategoryController::class, 'index'])
+            ->name('categories.index');
+
         Route::middleware('auth:sanctum')->group(function () {
             Route::get('/{id}', [CategoryController::class, 'show'])
                 ->name('categories.show');
@@ -135,8 +139,6 @@ Route::prefix('v1')->group(function () {
             Route::get('/slug/{slug}', [CategoryController::class, 'showBySlug'])
                 ->name('categories.showBySlug');
 
-            Route::get('/', [CategoryController::class, 'index'])
-                ->name('categories.index');
             Route::post('/', [CategoryController::class, 'store'])
                 ->name('categories.store');
             Route::put('/{id}', [CategoryController::class, 'update'])
@@ -182,14 +184,20 @@ Route::prefix('v1')->group(function () {
 
     Route::prefix('course-reviews')->group(function () {
 
+        Route::get('/courses/slug/{slug}', [CourseReviewController::class, 'indexByCourseSlug'])
+            ->name('course-review.indexByCourseSlug');
+
+
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('/student/courses/{id}', [CourseReviewController::class, 'store'])
                 ->whereNumber('id')
                 ->name('student.course-review.store');
 
+
             Route::get('/courses/{id}', [CourseReviewController::class, 'indexByCourse'])
                 ->whereNumber('id')
                 ->name('course-review.indexByCourse');
+
             Route::get('/student/courses/{id}', [CourseReviewController::class, 'showStudentReviewByCourse'])
                 ->whereNumber('id')
                 ->name('student.course-review.showByCourse');

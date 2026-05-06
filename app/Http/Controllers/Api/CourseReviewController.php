@@ -7,10 +7,12 @@ use Illuminate\Http\Request;
 use Throwable;
 use App\Http\Responses\ApiResponse;
 use App\Aplication\CourseReview\DTOs\CreateCourseReviewDto;
+use App\Aplication\CourseReview\DTOs\GetCourseReviewsBySlugDto;
 use App\Aplication\CourseReview\DTOs\GetCourseReviewsDto;
 use App\Aplication\CourseReview\DTOs\GetStudentCourseReviewDto;
 use App\Aplication\CourseReview\DTOs\UpdateCourseReviewDto;
 use App\Aplication\CourseReview\UseCases\CreateCourseReviewUsecase;
+use App\Aplication\CourseReview\UseCases\GetCourseReviewsByCourseSlugUsecase;
 use App\Aplication\CourseReview\UseCases\GetCourseReviewsUsecase;
 use App\Aplication\CourseReview\UseCases\RestoreCourseReviewUsecase;
 use App\Aplication\CourseReview\UseCases\DeleteCourseReviewUsecase;
@@ -137,6 +139,46 @@ class CourseReviewController extends Controller
         } catch (Throwable $e) {
             return ApiResponse::error(
                 message: 'Gagal mengambil daftar review course',
+                code: 500,
+                errors: [
+                    'exception' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
+    public function indexByCourseSlug(
+        string $slug,
+        Request $request,
+        GetCourseReviewsByCourseSlugUsecase $usecase
+    ) {
+        try {
+            $dto = new GetCourseReviewsBySlugDto(
+                courseSlug: $slug,
+                perPage: (int) ($request->query('per_page', 10)),
+                page: (int) ($request->query('page', 1))
+            );
+
+            $result = $usecase->execute($dto);
+
+            return ApiResponse::successPaginated(
+                data: $result->items(),
+                pagination: [
+                    'current_page' => $result->currentPage(),
+                    'last_page' => $result->lastPage(),
+                    'per_page' => $result->perPage(),
+                    'total' => $result->total(),
+                ],
+                message: 'Berhasil mengambil daftar review course berdasarkan slug'
+            );
+        } catch (CourseNotFoundException $e) {
+            return ApiResponse::error(
+                message: $e->getMessage(),
+                code: 404
+            );
+        } catch (Throwable $e) {
+            return ApiResponse::error(
+                message: 'Gagal mengambil daftar review course berdasarkan slug',
                 code: 500,
                 errors: [
                     'exception' => $e->getMessage(),
