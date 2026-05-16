@@ -15,24 +15,33 @@ class UpdateCourseDTO
         public ?array $lessons,
     ) {}
 
-    public static function fromRequest($request): self
+    public static function fromRequest($request, ?array $lessons = null, ?string $thumbnailUrl = null): self
     {
+        $resolvedLessons = $lessons ?? $request->input('lessons', []);
+
         return new self(
             title: $request->title,
             level: $request->level,
-            price: $request->price,
-            quota: $request->quota,
+            price: (int) $request->price,
+            quota: (int) $request->quota,
             description: $request->description,
-            thumbnail_url: $request->thumbnail_url,
+            thumbnail_url: $thumbnailUrl ?? $request->thumbnail_url,
             status: $request->status,
-            lessons: collect($request->lessons ?? [])
-                ->map(fn($lesson) => new LessonDTO(
-                    id: $lesson['id'] ?? null,
+            lessons: collect($resolvedLessons)
+                ->map(fn ($lesson, $index) => new LessonDTO(
+                    id: isset($lesson['id']) ? (int) $lesson['id'] : null,
                     title: $lesson['title'],
                     type: $lesson['type'],
-                    content: $lesson['content'],
+                    content: $lesson['content'] ?? null,
                     video_url: $lesson['video_url'] ?? null,
-                    is_preview: $lesson['is_preview'] ?? false,
+                    file_url: $lesson['file_url'] ?? null,
+                    is_preview: filter_var(
+                        $lesson['is_preview'] ?? false,
+                        FILTER_VALIDATE_BOOLEAN
+                    ),
+                    position: isset($lesson['position'])
+                        ? (int) $lesson['position']
+                        : $index + 1,
                 ))->toArray()
         );
     }

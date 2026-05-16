@@ -16,6 +16,7 @@ class LessonResource extends JsonResource
             'video_url' => $this->video_url,
             'is_preview' => $this->is_preview,
             'position' => $this->position,
+            'file_url' => $this->file_url, 
             'created_at' => $this->created_at,
         ];
     }

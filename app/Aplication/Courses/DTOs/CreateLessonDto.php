@@ -10,6 +10,7 @@ class CreateLessonDto
         public ?string $content,
         public string $type,
         public ?string $videoUrl,
+        public ?string $fileUrl,
         public bool $isPreview,
         public int $position,
     ) {}

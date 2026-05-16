@@ -14,7 +14,9 @@ class CreateCourseWithLessonsService
 {
     public function __construct(
         private CreateCourseUsecase $createCourseUsecase,
-        private CreateLessonsUsecase $createLessonsUsecase
+        private CreateLessonsUsecase $createLessonsUsecase,
+        private LessonVideoService $lessonVideoService,
+        private LessonFileService $lessonFileService,
     ) {}
 
     public function execute(CreateCourseDto $courseDto, array $lessons)
@@ -23,13 +25,32 @@ class CreateCourseWithLessonsService
             $course = $this->createCourseUsecase->execute($courseDto);
 
             foreach ($lessons as $index => $lesson) {
+                $videoUrl = null;
+                $fileUrl = null;
+
+                if (($lesson['type'] ?? null) === 'video') {
+                    $videoUrl = $this->lessonVideoService->store(
+                        $lesson['video_file'] ?? null
+                    );
+                }
+
+                if (($lesson['type'] ?? null) === 'file') {
+                    $fileUrl = $this->lessonFileService->store(
+                        $lesson['file'] ?? null
+                    );
+                }
+
                 $lessonDto = new CreateLessonDto(
                     courseId: $course->id,
                     title: $lesson['title'],
                     content: $lesson['content'] ?? null,
                     type: $lesson['type'],
-                    videoUrl: $lesson['video_url'] ?? null,
-                    isPreview: filter_var($lesson['is_preview'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                    videoUrl: $videoUrl,
+                    fileUrl: $fileUrl,
+                    isPreview: filter_var(
+                        $lesson['is_preview'] ?? false,
+                        FILTER_VALIDATE_BOOLEAN
+                    ),
                     position: $index + 1
                 );
 

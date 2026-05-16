@@ -8,8 +8,10 @@ class LessonDTO
         public ?int $id,
         public string $title,
         public string $type,
-        public string $content,
+        public ?string $content,
         public ?string $video_url,
+        public ?string $file_url,
         public bool $is_preview,
+        public ?int $position,
     ) {}
 }

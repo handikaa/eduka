@@ -55,44 +55,26 @@ class UpdateCourseUsecase
 
     private function syncLessons($course, array $lessons)
     {
-        $existingIds = $course->lessons()->pluck('id')->toArray();
-        $incomingIds = collect($lessons)
-            ->pluck('id')
-            ->filter()
-            ->toArray();
-
-        // delete
-        $toDelete = array_diff($existingIds, $incomingIds);
-
-        if ($toDelete) {
-            $course->lessons()->whereIn('id', $toDelete)->delete();
-        }
-
         foreach ($lessons as $index => $lessonDTO) {
+            $payload = [
+                'title' => $lessonDTO->title,
+                'type' => $lessonDTO->type,
+                'content' => $lessonDTO->content,
+                'video_url' => $lessonDTO->video_url,
+                'file_url' => $lessonDTO->file_url,
+                'is_preview' => $lessonDTO->is_preview,
+                'position' => $lessonDTO->position ?? $index + 1,
+            ];
 
             if ($lessonDTO->id) {
-                // update
                 $course->lessons()
                     ->where('id', $lessonDTO->id)
-                    ->update([
-                        'title' => $lessonDTO->title,
-                        'type' => $lessonDTO->type,
-                        'content' => $lessonDTO->content,
-                        'video_url' => $lessonDTO->video_url,
-                        'is_preview' => $lessonDTO->is_preview,
-                        'order_index' => $index,
-                    ]);
-            } else {
-                // create
-                $course->lessons()->create([
-                    'title' => $lessonDTO->title,
-                    'type' => $lessonDTO->type,
-                    'content' => $lessonDTO->content,
-                    'video_url' => $lessonDTO->video_url,
-                    'is_preview' => $lessonDTO->is_preview,
-                    'order_index' => $index,
-                ]);
+                    ->update($payload);
+
+                continue;
             }
+
+            $course->lessons()->create($payload);
         }
     }
 }

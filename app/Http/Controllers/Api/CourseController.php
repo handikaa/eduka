@@ -11,6 +11,7 @@ use App\Aplication\Courses\DTOs\GetAllCoursesDto;
 use App\Http\Responses\ApiResponse;
 use App\Http\Requests\StoreCourseRequest;
 use App\Http\Requests\UpdateCourseStatusRequest;
+use App\Http\Requests\UpdateCourseRequest;
 use App\Http\Resources\CourseResource;
 use App\Aplication\Courses\UseCases\GetAllCoursesUsecase;
 use App\Aplication\Courses\UseCases\GetCourseByIdUsecase;
@@ -21,6 +22,8 @@ use App\Aplication\Courses\UseCases\RestoreCourseUsecase;
 use  App\Aplication\Courses\UseCases\UpdateCourseUsecase;
 use  App\Aplication\Courses\UseCases\UpdateCourseStatusUsecase;
 use App\Aplication\Courses\Services\CreateCourseWithLessonsService;
+use App\Aplication\Courses\Services\LessonFileService;
+use App\Aplication\Courses\Services\LessonVideoService;
 use App\Domain\User\Exceptions\OnlyMentorCanCreateCourseException;
 use App\Domain\Courses\Exceptions\CourseNotFoundException;
 use App\Domain\Courses\Exceptions\CategoryIsRequiredException;
@@ -28,7 +31,6 @@ use App\Domain\Courses\Exceptions\UnauthorizedCourseAccessException;
 use App\Domain\Courses\Exceptions\InvalidCourseStatusException;
 use App\Aplication\Courses\Services\CourseThumbnailService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use App\Aplication\Courses\Services\LessonVideoService;
 
 use Throwable;
 
@@ -106,12 +108,10 @@ class CourseController extends Controller
         }
     }
 
-
     public function store(
         StoreCourseRequest $request,
         CreateCourseWithLessonsService $service,
-        CourseThumbnailService $thumbnailService,
-        LessonVideoService $lessonVideoService
+        CourseThumbnailService $thumbnailService
     ) {
         try {
             $user = $request->user();
@@ -121,11 +121,8 @@ class CourseController extends Controller
             $lessons = $request->input('lessons', []);
 
             foreach ($lessons as $index => $lesson) {
-                $videoFile = $request->file("lessons.$index.video_file");
-
-                if ($videoFile) {
-                    $lessons[$index]['video_url'] = $lessonVideoService->store($videoFile);
-                }
+                $lessons[$index]['video_file'] = $request->file("lessons.$index.video_file");
+                $lessons[$index]['file'] = $request->file("lessons.$index.file");
             }
 
             $courseDto = new CreateCourseDto(
@@ -200,10 +197,50 @@ class CourseController extends Controller
         }
     }
 
-    public function update(int $id, Request $request, UpdateCourseUsecase $usecase)
-    {
+    public function update(
+        int $id,
+        UpdateCourseRequest $request,
+        UpdateCourseUsecase $usecase,
+        CourseThumbnailService $thumbnailService,
+        LessonVideoService $lessonVideoService,
+        LessonFileService $lessonFileService
+    ) {
         try {
-            $dto = UpdateCourseDTO::fromRequest($request);
+            $thumbnailUrl = $request->thumbnail_url;
+
+            if ($request->hasFile('thumbnail')) {
+                $thumbnailUrl = $thumbnailService->store($request->file('thumbnail'));
+            }
+
+            $lessons = $request->input('lessons', []);
+
+            foreach ($lessons as $index => $lesson) {
+                $type = $lesson['type'] ?? null;
+
+                $videoFile = $request->file("lessons.$index.video_file");
+                $file = $request->file("lessons.$index.file");
+
+                if ($type === 'video' && $videoFile) {
+                    $lessons[$index]['video_url'] = $lessonVideoService->store($videoFile);
+                    $lessons[$index]['file_url'] = null;
+                }
+
+                if ($type === 'file' && $file) {
+                    $lessons[$index]['file_url'] = $lessonFileService->store($file);
+                    $lessons[$index]['video_url'] = null;
+                }
+
+                if ($type === 'content') {
+                    $lessons[$index]['video_url'] = null;
+                    $lessons[$index]['file_url'] = null;
+                }
+            }
+
+            $dto = UpdateCourseDTO::fromRequest(
+                request: $request,
+                lessons: $lessons,
+                thumbnailUrl: $thumbnailUrl
+            );
 
             $course = $usecase->execute(
                 $request->user(),

@@ -18,7 +18,7 @@ class Lesson extends Model
         'content',
         'video_url',
         'file_url',
-        'order_index',
+        'position',
         'is_preview',
     ];
 
